@@ -32,7 +32,7 @@ module.exports = {
   metadata: {
     title: 'Page title'
   },
-  controller: function (file, metalsmith, [callback]) {
+  controller: function (file, metalsmith, callback) {
     // call callback when controller is done
     // if callback is ommitted in arguments, controller is supposed to be sync
     callback();
