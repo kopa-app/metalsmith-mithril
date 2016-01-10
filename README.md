@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/kopa-app/metalsmith-mithril.svg)](https://travis-ci.org/kopa-app/metalsmith-mithril)
+
 # Metalsmith - mithril
 
 [Metalsmith](http://www.metalsmith.io/) plugin that creates html out of [mithril.js](http://mithril.js.org/) code.
