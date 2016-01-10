@@ -42,3 +42,11 @@ module.exports = {
   }
 };
 ```
+
+## Development
+
+To run the tests do:
+
+```bash
+npm test
+```
