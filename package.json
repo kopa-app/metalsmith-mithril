@@ -1,0 +1,34 @@
+{
+  "name": "metalsmith-mithril",
+  "version": "0.0.1",
+  "description": "Metalsmith plugin that creates html out of mithril.js code.",
+  "main": "index.js",
+  "scripts": {
+    "test": "_mocha index.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/kopa-app/metalsmith-mithril.git"
+  },
+  "keywords": [
+    "kopa",
+    "metalsmith",
+    "mithril"
+  ],
+  "author": "Ondrej Brinkel <info@kopa.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kopa-app/metalsmith-mithril/issues"
+  },
+  "homepage": "https://github.com/kopa-app/metalsmith-mithril#readme",
+  "dependencies": {
+    "es6-promise-series": "^0.2.0",
+    "mithril-node-render": "^0.4.2"
+  },
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "metalsmith": "^2.1.0",
+    "mithril": "^0.2.2-rc.1",
+    "mocha": "^2.3.4"
+  }
+}
