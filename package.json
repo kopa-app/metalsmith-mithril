@@ -1,6 +1,6 @@
 {
   "name": "metalsmith-mithril",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Metalsmith plugin that creates html out of mithril.js code.",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,9 @@
   },
   "homepage": "https://github.com/kopa-app/metalsmith-mithril#readme",
   "dependencies": {
+    "debug": "^2.2.0",
     "es6-promise-series": "^0.2.0",
+    "minimatch": "^3.0.0",
     "mithril-node-render": "^0.4.2"
   },
   "devDependencies": {
