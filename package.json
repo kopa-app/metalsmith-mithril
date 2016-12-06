@@ -1,6 +1,6 @@
 {
   "name": "metalsmith-mithril",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Metalsmith plugin that creates html out of mithril.js code.",
   "main": "index.js",
   "scripts": {
@@ -25,12 +25,15 @@
     "debug": "^2.2.0",
     "es6-promise-series": "^0.2.0",
     "minimatch": "^3.0.0",
-    "mithril-node-render": "^0.4.2"
+    "mithril-node-render": "git+https://github.com/StephanHoyer/mithril-node-render.git#rewrite"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
-    "metalsmith": "^2.1.0",
-    "mithril": "^0.2.2-rc.1",
+    "metalsmith": "^2.3.0",
+    "mithril": "^1.0.0-rc.5",
     "mocha": "^2.3.4"
+  },
+  "publishConfig": {
+		"tag": "rewrite"
   }
 }

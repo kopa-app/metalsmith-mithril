@@ -1,6 +1,14 @@
 'use strict';
 
 require('es6-promise-series')(Promise);
+global.window = {
+	document: {
+		createDocumentFragment: function () {}
+	},
+	history: {
+		pushState: function () {}
+	}
+};
 var path = require('path');
 var render = require('mithril-node-render');
 var debug = require('debug')('metalsmith-mithril');

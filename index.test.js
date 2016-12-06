@@ -42,7 +42,7 @@ describe('metalsmith-mithril', function () {
 				directory: './fixtures/layouts'
 			}))
 			.build(function (err, files) {
-				expect(Object.keys(files)).to.eql([
+				expect(Object.keys(files).sort()).to.eql([
 					'async.html',
 					'sync.html'
 				]);
