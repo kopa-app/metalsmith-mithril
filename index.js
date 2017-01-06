@@ -26,7 +26,10 @@ function renderComponent(component, file, metalsmith, callback) {
 		}
 
 		// render view
-		callback(null, new Buffer(render(view(ctrl, file, metalsmith))));
+		render(view(ctrl, file, metalsmith))
+    .then(function (html) {
+      callback(null, new Buffer(html));
+    });
 	}
 
 	// do not process files without a view
