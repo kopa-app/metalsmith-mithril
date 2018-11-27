@@ -28,7 +28,7 @@ Metalsmith(__dirname)
 `example.m.js`
 
 ```javascript
-var m = require('mitrhil');
+var m = require('mithril');
 
 module.exports = {
   metadata: {
@@ -64,7 +64,7 @@ Metalsmith(__dirname)
 `layouts/example.m.js`
 
 ```javascript
-var m = require('mitrhil');
+var m = require('mithril');
 
 module.exports = {
   controller: function (file, metalsmith, callback) {
