@@ -16,6 +16,7 @@ const render = require("mithril-node-render");
 const debug = require("debug")("metalsmith-mithril");
 const fs = require("fs");
 const minimatch = require("minimatch");
+const requireFromString = require("require-from-string");
 
 function renderComponent(component, file, metalsmith, callback) {
   var ctrl;
@@ -115,8 +116,6 @@ plugin.layouts = function(options) {
   options.pattern = options.pattern || "**/*.html";
   options.concurrent = options.concurrent || null;
 
-  var templates = {};
-
   function isLayout(filename) {
     return minimatch(filename.toLowerCase(), `**/*${options.ext}`);
   }
@@ -125,22 +124,32 @@ plugin.layouts = function(options) {
     return minimatch(filepath, options.pattern);
   }
 
-  if (!fs.existsSync(options.directory)) {
+  if (!(fs.existsSync(options.directory) || options.virtual)) {
     throw new Error(`Directory ${options.directory} does not exists`);
   }
 
-  fs.readdirSync(options.directory)
-    .filter(isLayout)
-    .forEach(filename => {
-      templates[filename] = require(join(
-        resolve(options.directory),
-        filename
-      ));
-    });
-
   return function(files, metalsmith, callback) {
     var metadata = metalsmith.metadata();
+    var templates = {};
 
+    if (options.virtual) {
+      Object.keys(files)
+        .filter(isLayout)
+        .forEach(filename => {
+          const text = files[filename].contents.toString();
+          templates[filename] = requireFromString(text);
+          delete files[filename];
+        });
+    } else {
+      fs.readdirSync(options.directory)
+        .filter(isLayout)
+        .forEach(filename => {
+          templates[filename] = require(join(
+            resolve(options.directory),
+            filename
+          ));
+        });
+    }
 
     function render(filepath) {
       return function() {
