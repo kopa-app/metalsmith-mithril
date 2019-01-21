@@ -4,7 +4,9 @@
   "description": "Metalsmith plugin that creates html out of mithril.js code.",
   "main": "index.js",
   "scripts": {
-    "test": "_mocha index.test.js"
+    "prettify": "prettier --write '*.js' && prettier --write 'fixtures/**/*.js' && prettier --write 'layouts/*.js'",
+    "lint": "eslint *.js fixtures/**/*.js layouts/*.js",
+    "test": "mocha index.test.js"
   },
   "repository": {
     "type": "git",
@@ -25,13 +27,18 @@
     "debug": "^2.2.0",
     "es6-promise-series": "^0.2.0",
     "minimatch": "^3.0.0",
-    "mithril-node-render": "^2.1.0"
+    "mithril-node-render": "^2.1.0",
+    "require-from-string": "^2.0.2"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
+    "eslint": "4.11.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-prettier": "^2.6.2",
     "metalsmith": "^2.3.0",
-    "mithril": "^1.0.0-rc.7",
-    "mocha": "^2.3.4"
+    "mithril": "^1.1.6",
+    "mocha": "^5.2.0",
+    "prettier": "^1.15.3"
   },
   "publishConfig": {
 		"tag": "latest"

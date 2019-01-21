@@ -56,6 +56,7 @@ Metalsmith(__dirname)
     pattern: '**/*.html', // default
     ext: '.m.js', // default
     directory: 'layouts', // default
+    virtual: false, // ignore `directory` and look for layouts in mithril file list
     default: 'example.m.js', // default layout to use if none is provided
     concurrent: 2 // how many files will be processed in parallel, default is none
   }))
