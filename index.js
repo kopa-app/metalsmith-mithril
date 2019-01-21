@@ -1,188 +1,183 @@
-'use strict';
+"use strict";
 
-require('es6-promise-series')(Promise);
+require("es6-promise-series")(Promise);
+
 global.window = {
-	document: {
-		createDocumentFragment: function () {}
-	},
-	history: {
-		pushState: function () {}
-	}
+  document: {
+    createDocumentFragment: function() {}
+  },
+  history: {
+    pushState: function() {}
+  }
 };
-var path = require('path');
-var render = require('mithril-node-render');
-var debug = require('debug')('metalsmith-mithril');
-var fs = require('fs');
-var minimatch = require('minimatch');
+
+const { join, resolve } = require("path");
+const render = require("mithril-node-render");
+const debug = require("debug")("metalsmith-mithril");
+const fs = require("fs");
+const minimatch = require("minimatch");
 
 function renderComponent(component, file, metalsmith, callback) {
-	var ctrl;
-	var Ctrl = component.ctrl || null;
-	var view = component.view || null;
+  var ctrl;
+  const Ctrl = component.ctrl || null;
+  const view = component.view || null;
 
-	function done(err) {
-		if (err) {
-			return callback(err);
-		}
+  function done(err) {
+    if (err) {
+      return callback(err);
+    }
 
-		// render view
-		render(view(ctrl, file, metalsmith))
-    .then(function (html) {
-      callback(null, new Buffer(html));
+    render(view(ctrl, file, metalsmith)).then(function(html) {
+      debug(`Successfully rendered layout: ${file.layout}!`);
+      callback(null, Buffer.from(html));
     });
-	}
+  }
 
-	// do not process files without a view
-	if (!view) {
-		return callback(null);
-	}
+  if (!view) {
+    return callback(null);
+  }
 
-	// create controller instance
-	if (Ctrl) {
-		if (Ctrl.length >= 3) {
-			// async controller
-			ctrl = new Ctrl(file, metalsmith, done);
-		} else {
-			// sync controller
-			ctrl = new Ctrl(file, metalsmith);
-			done();
-		}
-	} else {
-		// proceed without controller
-		done();
-	}
+  if (Ctrl) {
+    if (Ctrl.length >= 3) {
+      // async controller
+      ctrl = new Ctrl(file, metalsmith, done);
+    } else {
+      ctrl = new Ctrl(file, metalsmith);
+      done();
+    }
+  } else {
+    done();
+  }
 }
 
 function plugin(options) {
-	options = options || {};
-	options.ext = options.ext || '.m.js';
-	options.concurrent = options.concurrent || null;
+  options = options || {};
+  options.ext = options.ext || ".m.js";
+  options.concurrent = options.concurrent || null;
 
-	function filterFile(filename) {
-		return filename.toLowerCase().substr(-options.ext.length) === options.ext;
-	}
+  function isLayout(filename) {
+    return filename.toLowerCase().substr(-options.ext.length) === options.ext;
+  }
 
-	return function (files, metalsmith, callback) {
-		var source = metalsmith.source();
+  return function(files, metalsmith, callback) {
+    var source = metalsmith.source();
 
-		function resolvePath(filename) {
-			return path.join(source, filename);
-		}
+    function resolvePath(filename) {
+      return join(source, filename);
+    }
 
-		function workFile(filename) {
-			return function () {
-				return new Promise(function (resolve, reject) {
-					var htmlFilename = filename.substr(0, filename.length - options.ext.length) + '.html';
-					var file = files[filename];
-					var component = require(resolvePath(filename));
-					var metadata = component.metadata || {};
+    function render(filename) {
+      return function() {
+        return new Promise(function(resolve, reject) {
+          var htmlFilename = filename.replace(options.ext, ".html");
+          var file = files[filename];
+          var component = require(resolvePath(filename));
+          var metadata = component.metadata || {};
 
-					// extend files metadata
-					Object.keys(metadata).forEach(function (key) {
-						file[key] = metadata[key];
-					});
+          Object.keys(metadata).forEach(function(key) {
+            file[key] = metadata[key];
+          });
 
-					function done(err, contents) {
-						if (err) {
-							return reject(err);
-						}
+          function done(err, contents) {
+            if (err) {
+              return reject(err);
+            }
 
-						// render view
-						file.contents = contents;
+            file.contents = contents;
+            delete files[filename];
+            files[htmlFilename] = file;
+            resolve(file);
+          }
 
-						// replace file
-						delete files[filename];
-						files[htmlFilename] = file;
+          renderComponent(component, file, metalsmith, done);
+        });
+      };
+    }
 
-						resolve(file);
-					}
-
-					renderComponent(component, file, metalsmith, done);
-				});
-			};
-		}
-
-		Promise.series(
-			Object.keys(files)
-				.filter(filterFile)
-				.map(workFile),
-			options.concurrent
-		)
-			.then(function () {
-				callback();
-			})
-			.catch(callback);
-	};
+    Promise.series(
+      Object.keys(files)
+        .filter(isLayout)
+        .map(render),
+      options.concurrent
+    )
+      .then(function() {
+        callback();
+      })
+      .catch(callback);
+  };
 }
 
-plugin.layouts = function (options) {
-	options = options || {};
-	options.default = options.default || null;
-	options.directory = options.directory || 'layouts';
-	options.ext = options.ext || '.m.js';
-	options.pattern = options.pattern || '**/*.html';
-	options.concurrent = options.concurrent || null;
+plugin.layouts = function(options) {
+  options = options || {};
+  options.default = options.default || null;
+  options.directory = options.directory || "layouts";
+  options.ext = options.ext || ".m.js";
+  options.pattern = options.pattern || "**/*.html";
+  options.concurrent = options.concurrent || null;
 
-	var templates = {};
+  var templates = {};
 
-	if (!fs.existsSync(options.directory)) {
-		throw new Error('Directory ' + options.directory + ' does not exists');
-	}
+  function isLayout(filename) {
+    return filename.toLowerCase().substr(-options.ext.length) === options.ext;
+  }
 
-	fs.readdirSync(options.directory)
-		.forEach(function (file) {
-			// skip files with wrong extension
-			if (file.toLowerCase().substr(-options.ext.length) !== options.ext) {
-				return;
-			}
+  function isHTML(filepath) {
+    return minimatch(filepath, options.pattern);
+  }
 
-			templates[file] = require(path.join(path.resolve(options.directory), file));
-		});
+  if (!fs.existsSync(options.directory)) {
+    throw new Error(`Directory ${options.directory} does not exists`);
+  }
 
-	return function (files, metalsmith, callback) {
-		var metadata = metalsmith.metadata();
+  fs.readdirSync(options.directory)
+    .filter(isLayout)
+    .forEach(filename => {
+      templates[filename] = require(join(
+        resolve(options.directory),
+        filename
+      ));
+    });
 
-		function filterFile(filepath) {
-			return options.pattern && minimatch(filepath, options.pattern);
-		}
+  return function(files, metalsmith, callback) {
+    var metadata = metalsmith.metadata();
 
-		function workFile(filepath) {
-			return function () {
-				return new Promise(function (resolve, reject) {
-					var file = files[filepath];
-					var layout = file.layout || options.default;
-					var component = templates[layout] || null;
 
-					if (!component) {
-						throw new Error('Layout ' + layout + ' does not exist.');
-					}
+    function render(filepath) {
+      return function() {
+        return new Promise(function(resolve, reject) {
+          var file = files[filepath];
+          var layout = file.layout || options.default;
+          var component = templates[layout] || null;
 
-					function done(err, contents) {
-						if (err) {
-							return reject(err);
-						}
+          if (!component) {
+            throw new Error(`Layout ${layout} does not exist.`);
+          }
 
-						file.contents = contents;
+          function done(err, contents) {
+            if (err) {
+              return reject(err);
+            }
 
-						resolve(file);
-					}
+            file.contents = contents;
+            resolve(file);
+          }
 
-					renderComponent(component, file, metalsmith, done);
-				});
-			};
-		}
+          renderComponent(component, file, metalsmith, done);
+        });
+      };
+    }
 
-		Promise.series(
-			Object.keys(files)
-				.filter(filterFile)
-				.map(workFile),
-			options.concurrent
-		)
-			.then(function () {
-				callback();
-			})
-			.catch(callback);
-	};
+    Promise.series(
+      Object.keys(files)
+        .filter(isHTML)
+        .map(render),
+      options.concurrent
+    )
+      .then(function() {
+        callback();
+      })
+      .catch(callback);
+  };
 };
 
 module.exports = plugin;
