@@ -56,7 +56,7 @@ function plugin(options) {
   options.concurrent = options.concurrent || null;
 
   function isLayout(filename) {
-    return filename.toLowerCase().substr(-options.ext.length) === options.ext;
+    return minimatch(filename.toLowerCase(), `**/*${options.ext}`);
   }
 
   return function(files, metalsmith, callback) {
@@ -118,7 +118,7 @@ plugin.layouts = function(options) {
   var templates = {};
 
   function isLayout(filename) {
-    return filename.toLowerCase().substr(-options.ext.length) === options.ext;
+    return minimatch(filename.toLowerCase(), `**/*${options.ext}`);
   }
 
   function isHTML(filepath) {
