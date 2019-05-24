@@ -1,9 +1,9 @@
 'use strict';
 
-var metalsmith = require('metalsmith');
-var mithril = require('./index');
-var expect = require('expect.js');
-var fs = require('fs');
+const metalsmith = require('metalsmith');
+const mithril = require('./index');
+const expect = require('expect.js');
+const fs = require('fs');
 
 describe('metalsmith-mithril', function () {
 	it('should parse *.m.js files', function (done) {

@@ -9,16 +9,16 @@ global.window = {
 		pushState: function () {}
 	}
 };
-var path = require('path');
-var render = require('mithril-node-render');
-var debug = require('debug')('metalsmith-mithril');
-var fs = require('fs');
-var minimatch = require('minimatch');
+const path = require('path');
+const render = require('mithril-node-render');
+const debug = require('debug')('metalsmith-mithril');
+const fs = require('fs');
+const minimatch = require('minimatch');
 
 function renderComponent(component, file, metalsmith, callback) {
-	var ctrl;
-	var Ctrl = component.ctrl || null;
-	var view = component.view || null;
+	let ctrl;
+	const Ctrl = component.ctrl || null;
+	const view = component.view || null;
 
 	function done(err) {
 		if (err) {
@@ -59,11 +59,11 @@ function plugin(options) {
 	options.concurrent = options.concurrent || null;
 
 	function filterFile(filename) {
-		return filename.toLowerCase().substr(-options.ext.length) === options.ext;
+		return minimatch(filename.toLowerCase(), `**/*${options.ext}`);
 	}
 
 	return function (files, metalsmith, callback) {
-		var source = metalsmith.source();
+		const source = metalsmith.source();
 
 		function resolvePath(filename) {
 			return path.join(source, filename);
@@ -72,10 +72,10 @@ function plugin(options) {
 		function workFile(filename) {
 			return function () {
 				return new Promise(function (resolve, reject) {
-					var htmlFilename = filename.substr(0, filename.length - options.ext.length) + '.html';
-					var file = files[filename];
-					var component = require(resolvePath(filename));
-					var metadata = component.metadata || {};
+					const htmlFilename = filename.substr(0, filename.length - options.ext.length) + '.html';
+					const file = files[filename];
+					const component = require(resolvePath(filename));
+					const metadata = component.metadata || {};
 
 					// extend files metadata
 					Object.keys(metadata).forEach(function (key) {
@@ -123,7 +123,7 @@ plugin.layouts = function (options) {
 	options.pattern = options.pattern || '**/*.html';
 	options.concurrent = options.concurrent || null;
 
-	var templates = {};
+	const templates = {};
 
 	if (!fs.existsSync(options.directory)) {
 		throw new Error('Directory ' + options.directory + ' does not exists');
@@ -140,7 +140,7 @@ plugin.layouts = function (options) {
 		});
 
 	return function (files, metalsmith, callback) {
-		var metadata = metalsmith.metadata();
+		const metadata = metalsmith.metadata();
 
 		function filterFile(filepath) {
 			return options.pattern && minimatch(filepath, options.pattern);
@@ -149,9 +149,9 @@ plugin.layouts = function (options) {
 		function workFile(filepath) {
 			return function () {
 				return new Promise(function (resolve, reject) {
-					var file = files[filepath];
-					var layout = file.layout || options.default;
-					var component = templates[layout] || null;
+					const file = files[filepath];
+					const layout = file.layout || options.default;
+					const component = templates[layout] || null;
 
 					if (!component) {
 						throw new Error('Layout ' + layout + ' does not exist.');
