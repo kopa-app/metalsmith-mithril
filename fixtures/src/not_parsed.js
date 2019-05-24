@@ -1,5 +1,5 @@
 module.exports = {
-	view: function () {
-		return 'should not get parsed';
-	}
+  view() {
+    return 'should not get parsed';
+  }
 };

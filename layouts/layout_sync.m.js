@@ -1,12 +1,12 @@
 'use strict';
 
-var m = require('mithril');
+const m = require('mithril');
 
 module.exports = {
-  controller: function (file, metalsmith) {
+  controller() {
 
   },
-  view: function (ctrl, file, metalsmith) {
+  view(ctrl, file) {
     return m('main', m.trust(file.contents.toString()));
   }
 };
