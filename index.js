@@ -140,7 +140,6 @@ plugin.layouts = function (options) {
 		});
 
 	return function (files, metalsmith, callback) {
-		const metadata = metalsmith.metadata();
 
 		function filterFile(filepath) {
 			return options.pattern && minimatch(filepath, options.pattern);
