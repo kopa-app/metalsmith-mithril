@@ -2,6 +2,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const fresh = require('fresh-require');
 const pSeries = require('es6-promise-series');
 const render = require('mithril-node-render');
 const minimatch = require('minimatch');
@@ -74,7 +75,7 @@ function plugin(options) {
         return new Promise(((resolve, reject) => {
           const htmlFilename = filename.substr(0, filename.length - options.ext.length) + '.html';
           const file = files[filename];
-          const component = require(resolvePath(filename));
+          const component = fresh(resolvePath(filename), require);
           const metadata = component.metadata || {};
 
           // extend files metadata
@@ -123,23 +124,23 @@ plugin.layouts = function (options) {
   options.pattern = options.pattern || '**/*.html';
   options.concurrent = options.concurrent || null;
 
-  const templates = {};
-
   if (!fs.existsSync(options.directory)) {
     throw new Error('Directory ' + options.directory + ' does not exists');
   }
 
-  fs.readdirSync(options.directory)
-    .forEach(file => {
-      // skip files with wrong extension
-      if (file.toLowerCase().substr(-options.ext.length) !== options.ext) {
-        return;
-      }
-
-      templates[file] = require(path.join(path.resolve(options.directory), file));
-    });
-
   return function (files, metalsmith, callback) {
+    const templates = {};
+
+    fs.readdirSync(options.directory)
+      .forEach(file => {
+        // skip files with wrong extension
+        if (file.toLowerCase().substr(-options.ext.length) !== options.ext) {
+          return;
+        }
+
+        templates[file] = fresh(path.join(path.resolve(options.directory), file), require);
+      });
+
     function filterFile(filepath) {
       return options.pattern && minimatch(filepath, options.pattern);
     }
