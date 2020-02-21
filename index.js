@@ -15,6 +15,7 @@ global.window = {
     pushState() {}
   }
 };
+global.requestAnimationFrame = () => {};
 
 function renderComponent(component, file, metalsmith, callback) {
   let ctrl;
